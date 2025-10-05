@@ -1,3 +1,4 @@
+using Application.Abstractions;
 using Infrastructure.Quartz;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
@@ -24,7 +25,11 @@ namespace Infrastructure.DependencyInjections
             services.AddQuartzHostedService(options => {
                 options.WaitForJobsToComplete = true;
             });
-            services.AddHostedService<QuartzScheduleService>();
+            
+            services.AddSingleton(provider => provider.GetRequiredService<ISchedulerFactory>().GetScheduler().Result);
+            
+            services.AddHostedService<QuartzScheduleBackgroundService>();
+            services.AddSingleton<ISchedulerService, QuartzSchedulerService>();
             
             return services;
         }

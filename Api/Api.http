@@ -1,6 +1,49 @@
-@Api_HostAddress = http://localhost:5239
+@api_host = http://localhost:5239/api
 
-GET {{Api_HostAddress}}/weatherforecast/
-Accept: application/json
+### PATCH: actualizar solo CronExpression
+PATCH {{api_host}}/scheduler/update
+Content-Type: application/json
 
-###
+{
+  "JobKey": "UpdateProviders",
+  "CronExpression": "0 0/5 * * * ?"
+}
+
+### PATCH: actualizar solo Enabled
+PATCH {{api_host}}/scheduler/update
+Content-Type: application/json
+
+{
+  "JobKey": "UpdateProviders",
+  "Enabled": true
+}
+
+### PATCH: actualizar solo NextExecutionUtc (disparar ejecución única)
+PATCH {{api_host}}/scheduler/update
+Content-Type: application/json
+
+{
+  "JobKey": "UpdateProviders",
+  "NextExecutionUtc": "2025-10-05T12:30:00Z"
+}
+
+### PATCH: actualizar CronExpression y Enabled juntos
+PATCH {{api_host}}/scheduler/update
+Content-Type: application/json
+
+{
+  "JobKey": "UpdateProviders",
+  "CronExpression": "0 15 10 * * ?",
+  "Enabled": false
+}
+
+### PATCH: actualizar todo
+PATCH {{api_host}}/scheduler/update
+Content-Type: application/json
+
+{
+  "JobKey": "SyncJob5",
+  "CronExpression": "0 0 8 ? * MON-FRI",
+  "Enabled": true,
+  "NextExecutionUtc": "2025-10-05T08:00:00Z"
+}

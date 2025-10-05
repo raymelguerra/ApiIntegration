@@ -1,7 +1,8 @@
 using Application.Abstractions;
+using Application.Commands;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Commands.Warehouses
+namespace Application.Handlers
 {
     public class UpdateWarehousesCommandHandler(ILogger<UpdateWarehousesCommandHandler> logger) : IRequestHandler<UpdateWarehousesCommand, Unit>
     {

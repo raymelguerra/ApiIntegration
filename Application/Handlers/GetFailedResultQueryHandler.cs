@@ -1,4 +1,4 @@
-namespace Application.Queries
+namespace Application.Handlers
 {
     public class GetFailedResultQueryHandler
     {

@@ -1,6 +1,6 @@
 using Application.Abstractions;
 
-namespace Application.Commands.Materials
+namespace Application.Commands
 {
     public record UpdateMaterialsCommand(string JobKey) : IRequest<Unit>;
 }
