@@ -1,0 +1,19 @@
+using MediatR;
+using Microsoft.Extensions.Logging;
+
+namespace Application.Commands.Materials
+{
+    public class UpdateMaterialsCommandHandler(ILogger<UpdateMaterialsCommandHandler> logger) : IRequestHandler<UpdateMaterialsCommand, Unit>
+    {
+
+        public async Task<Unit> Handle(UpdateMaterialsCommand request, CancellationToken cancellationToken)
+        {
+            logger.LogInformation("Handling UpdateMaterialsCommand for job: {JobKey}", request.JobKey);
+            
+            await Task.Delay(1000, cancellationToken); // Simular trabajo
+        
+            logger.LogInformation("Completed UpdateMaterialsCommand for job: {JobKey}", request.JobKey);
+            return Unit.Value;
+        }
+    }
+}
