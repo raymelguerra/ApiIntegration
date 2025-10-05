@@ -1,4 +1,4 @@
-using MediatR;
+using Application.Abstractions;
 
 namespace Application.Commands.Materials
 {

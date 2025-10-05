@@ -11,6 +11,7 @@ namespace Infrastructure.DependencyInjections
             services.AddEfInfrastructure(connectionString);
             services.AddHttpClientsInfrastructure();
             services.AddQuartzInfrastructure(connectionString);
+            services.AddMediator();
             services.AddScoped<ISyncRepository, EfSyncRepository>();
             
             return services;

@@ -1,4 +1,4 @@
-using MediatR;
+using Application.Abstractions;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Commands.StockPhotoValuations

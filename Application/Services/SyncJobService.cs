@@ -1,3 +1,4 @@
+using Application.Abstractions;
 using Application.Commands.Materials;
 using Application.Commands.MerchandiseEntry;
 using Application.Commands.Providers;
@@ -6,12 +7,11 @@ using Application.Commands.Warehouses;
 using Domain.Enums;
 using Domain.Extensions;
 using Domain.Interfaces;
-using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Services
 {
-    public class SyncJobService(IMediator mediator, ILogger<SyncJobService> logger) : ISyncJobService
+    public class SyncJobService(ISender mediator, ILogger<SyncJobService> logger) : ISyncJobService
     {
 
         public async Task ExecuteJobAsync(string jobKey, CancellationToken cancellationToken)

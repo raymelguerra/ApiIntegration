@@ -31,6 +31,14 @@ namespace Infrastructure.Quartz
                 var job = JobBuilder.Create<GenericSyncJob>()
                     .WithIdentity(s.JobKey)
                     .Build();
+                
+                var triggerKey = new TriggerKey($"{s.JobKey}.trigger");
+                var existingTrigger = await scheduler.GetTrigger(triggerKey, cancellationToken);
+                if (existingTrigger != null)
+                {
+                    log.LogInformation("Trigger for job {jobKey} already exists, skipping", s.JobKey);
+                    continue;
+                }
 
                 var trigger = TriggerBuilder.Create()
                     .WithIdentity($"{s.JobKey}.trigger")
