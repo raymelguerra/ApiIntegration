@@ -15,7 +15,6 @@ namespace Infrastructure.DependencyInjections
                         cfg.ConnectionString = connectionString;
                         cfg.TablePrefix = "quartz.qrtz_";
                     }
-                    // dataSourceName: "updaters_jobs"
                     );
                     storeOptions.UseNewtonsoftJsonSerializer();
                     storeOptions.UseProperties = true;

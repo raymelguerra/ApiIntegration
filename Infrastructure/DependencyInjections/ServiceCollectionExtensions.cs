@@ -1,5 +1,5 @@
 using Domain.Interfaces;
-using Infrastructure.Persistence.Services;
+using Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Infrastructure.DependencyInjections

@@ -1,8 +1,12 @@
 using Application.Commands.Materials;
+using Application.Commands.MerchandiseEntry;
 using Application.Commands.Providers;
+using Application.Commands.StockPhotoValuations;
+using Application.Commands.Warehouses;
+using Domain.Enums;
+using Domain.Extensions;
 using Domain.Interfaces;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Services
@@ -15,14 +19,33 @@ namespace Application.Services
             try
             {
                 logger.LogInformation("Executing job {JobKey}", jobKey);
-                switch (jobKey)
+
+                if (!jobKey.TryParseJobKey(out var jobType))
                 {
-                    case "UpdateProviders":
+                    logger.LogWarning("Invalid job key: {jobKey}", jobKey);
+                    return;
+                }
+
+                switch (jobType)
+                {
+                    case JobType.UpdateProviders:
                         await mediator.Send(new UpdateProvidersCommand(jobKey), cancellationToken);
                         break;
 
-                    case "UpdateMaterials":
+                    case JobType.UpdateMaterials:
                         await mediator.Send(new UpdateMaterialsCommand(jobKey), cancellationToken);
+                        break;
+                    
+                    case JobType.UpdateMerchandiseEntry:
+                        await mediator.Send(new UpdateMerchandiseEntryCommand(jobKey), cancellationToken);
+                        break;
+                    
+                    case JobType.UpdateStockPhotoValuations:
+                        await mediator.Send(new UpdateStockPhotoValuationsCommand(jobKey), cancellationToken);
+                        break;
+                    
+                    case JobType.UpdateWarehouses:
+                        await mediator.Send(new UpdateWarehousesCommand(jobKey), cancellationToken);
                         break;
                     
                     default:

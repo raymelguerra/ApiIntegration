@@ -1,9 +1,10 @@
 using Domain.Entities;
 using Domain.Interfaces;
+using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Infrastructure.Persistence.Services
+namespace Infrastructure.Services
 {
     public class EfSyncRepository(SyncDbContext ctx, ILogger<EfSyncRepository> logger) : ISyncRepository
     {
