@@ -1,7 +1,8 @@
 using Application.Abstractions;
+using Application.Commands;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Commands.Materials
+namespace Application.Handlers
 {
     public class UpdateMaterialsCommandHandler(ILogger<UpdateMaterialsCommandHandler> logger) : IRequestHandler<UpdateMaterialsCommand, Unit>
     {

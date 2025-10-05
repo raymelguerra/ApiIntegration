@@ -2,7 +2,7 @@
 
 using Application.Abstractions;
 
-namespace Application.Commands.StockPhotoValuations
+namespace Application.Commands
 {
     public record UpdateStockPhotoValuationsCommand(string JobKey) : IRequest<Unit>;
 }

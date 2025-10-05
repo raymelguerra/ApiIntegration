@@ -1,7 +1,8 @@
 using Application.Abstractions;
+using Application.Commands;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Commands.MerchandiseEntry
+namespace Application.Handlers
 {
     public class UpdateMerchandiseEntryCommandHandler(ILogger<UpdateMerchandiseEntryCommandHandler> logger) : IRequestHandler<UpdateMerchandiseEntryCommand, Unit>
     {

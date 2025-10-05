@@ -1,9 +1,5 @@
 using Application.Abstractions;
-using Application.Commands.Materials;
-using Application.Commands.MerchandiseEntry;
-using Application.Commands.Providers;
-using Application.Commands.StockPhotoValuations;
-using Application.Commands.Warehouses;
+using Application.Commands;
 using Domain.Enums;
 using Domain.Extensions;
 using Domain.Interfaces;

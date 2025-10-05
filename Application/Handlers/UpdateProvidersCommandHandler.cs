@@ -1,7 +1,8 @@
 using Application.Abstractions;
+using Application.Commands;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Commands.Providers
+namespace Application.Handlers
 {
     public class UpdateProvidersCommandHandler(ILogger<UpdateProvidersCommandHandler> logger) : IRequestHandler<UpdateProvidersCommand, Unit>
     {

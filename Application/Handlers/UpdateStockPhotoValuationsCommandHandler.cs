@@ -1,7 +1,8 @@
 using Application.Abstractions;
+using Application.Commands;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Commands.StockPhotoValuations
+namespace Application.Handlers
 {
     public class UpdateStockPhotoValuationsCommandHandler(ILogger<UpdateStockPhotoValuationsCommandHandler> logger) : IRequestHandler<UpdateStockPhotoValuationsCommand, Unit>
     {

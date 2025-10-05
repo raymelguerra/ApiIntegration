@@ -9,10 +9,10 @@ using Quartz;
 
 namespace Infrastructure.Quartz
 {
-    public class QuartzScheduleService(
+    public class QuartzScheduleBackgroundService(
         ISchedulerFactory schedulerFactory,
         IServiceProvider sp,
-        ILogger<QuartzScheduleService> log) : IHostedService
+        ILogger<QuartzScheduleBackgroundService> log) : IHostedService
     {
         public async Task StartAsync(CancellationToken cancellationToken)
         {
