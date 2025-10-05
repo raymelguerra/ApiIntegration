@@ -7,7 +7,6 @@ namespace Infrastructure.Quartz
 {
     public class QuartzSchedulerService(IScheduler scheduler, ILogger<QuartzSchedulerService> logger) : ISchedulerService
     {
-
         public async Task ScheduleOneTimeJobAsync(string jobKey, DateTime runAt, CancellationToken ct = default)
         {
             logger.LogInformation("Scheduling job {JobKey}", jobKey);
@@ -33,6 +32,15 @@ namespace Infrastructure.Quartz
             }
             else
             {
+                // verify if there is an existing one time trigger for the job
+                var triggers = await scheduler.GetTriggersOfJob(jobIdentity, ct);
+                var oneTimeTrigger = triggers.FirstOrDefault(t => t.Key.Name.EndsWith(".OneTime.trigger"));
+                if (oneTimeTrigger != null)
+                {
+                    // if there is an existing one time trigger, delete it
+                    await scheduler.UnscheduleJob(oneTimeTrigger.Key, ct);
+                    logger.LogInformation("Deleted existing one-time trigger for job {JobKey}", jobKey);
+                }
                 // create a new one time trigger for the existing job
                 var trigger = TriggerBuilder.Create()
                     .WithIdentity($"{jobKey}.OneTime.trigger")
