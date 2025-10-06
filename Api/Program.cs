@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text.Json.Serialization;
 using Application.DependencyInjections;
 using Infrastructure.DependencyInjections;
 using Api.Middleware;
@@ -9,10 +10,15 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new NullReferenceException();
 builder.Services.AddInfrastructure(connectionString);
 builder.Services.AddApplication();
-// Add services to the container.
 
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+// Configure controllers to use string enums
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+
+// Configure Swagger/OpenAPI with XML documentation
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -41,6 +47,9 @@ builder.Services.AddSwaggerGen(options =>
     
     // Add custom schema IDs to avoid conflicts
     options.CustomSchemaIds(type => type.FullName?.Replace("+", "."));
+    
+    // Configure enums to display as strings in Swagger
+    options.UseInlineDefinitionsForEnums();
 });
 
 var app = builder.Build();
