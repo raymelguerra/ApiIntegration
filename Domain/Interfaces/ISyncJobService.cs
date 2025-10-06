@@ -4,6 +4,5 @@ namespace Domain.Interfaces
     {
         Task ExecuteJobAsync(string jobKey, CancellationToken cancellationToken);
         
-        
     }
 }

@@ -10,6 +10,7 @@ namespace Application.DependencyInjections
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
             services.AddScoped<ISyncJobService, SyncJobService>();
+            services.AddScoped<ISender, Sender>();
             
             // Register all request handlers from the Application assembly
             var assembly = typeof(ServiceCollectionExtensions).Assembly;
@@ -18,7 +19,7 @@ namespace Application.DependencyInjections
                     i.IsGenericType && 
                     i.GetGenericTypeDefinition() == typeof(IRequestHandler<,>)))
                 .ToList();
-
+            
             foreach (var handlerType in handlerTypes)
             {
                 var interfaceType = handlerType.GetInterfaces()
@@ -26,7 +27,7 @@ namespace Application.DependencyInjections
                                 i.GetGenericTypeDefinition() == typeof(IRequestHandler<,>));
                 services.AddScoped(interfaceType, handlerType);
             }
-            
+             
             return services;
         }
     }
