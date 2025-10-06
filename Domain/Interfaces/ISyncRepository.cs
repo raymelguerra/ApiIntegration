@@ -1,4 +1,5 @@
 using Domain.Entities;
+using Domain.Enums;
 
 namespace Domain.Interfaces
 {
@@ -9,6 +10,7 @@ namespace Domain.Interfaces
         Task UpsertScheduleAsync(SyncSchedule schedule, CancellationToken ct = default);
         Task AddExecutionHistoryAsync(ExecutionHistory h, CancellationToken ct = default);
         Task AddFailedItemsAsync(IEnumerable<FailedItem> items, CancellationToken ct = default);
+        Task<(IEnumerable<ExecutionHistory> Histories, int Count)> GetExecutionHistoryAsync(Paginator<HistorySortBy> filter, CancellationToken ct = default);
         Task<int> SaveChangesAsync(CancellationToken ct = default);
     }
 }

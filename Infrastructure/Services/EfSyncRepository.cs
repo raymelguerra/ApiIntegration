@@ -1,4 +1,5 @@
 using Domain.Entities;
+using Domain.Enums;
 using Domain.Interfaces;
 using Infrastructure.Exceptions;
 using Infrastructure.Persistence;
@@ -23,6 +24,7 @@ namespace Infrastructure.Services
                 throw new DatabaseException("Failed to retrieve schedules", ex);
             }
         }
+        
         
         public async Task<SyncSchedule> GetScheduleAsync(string jobKey, CancellationToken ct = default)
         {
@@ -109,6 +111,59 @@ namespace Infrastructure.Services
             {
                 throw new DatabaseException("Failed to add failed items", ex);
             }
+        }
+        public async Task<(IEnumerable<ExecutionHistory> Histories, int Count)> GetExecutionHistoryAsync(Paginator<HistorySortBy> filter, CancellationToken ct = default)
+        {
+            logger.LogInformation("Getting execution history with filter: {@Filter}", filter);
+            // In the out tuple, the list is the items, the int is the total count, in filter param we have offset, limit, sortBy, sortOrder
+            try
+            {
+                var query = ctx.ExecutionHistories.AsQueryable();
+
+                // Get total count before pagination
+                var totalCount = await query.CountAsync(ct);
+
+                // Apply sorting
+                query = filter.SortBy switch
+                {
+                    HistorySortBy.StartedAt => filter.SortOrder == SortOrder.Ascending
+                        ? query.OrderBy(h => h.StartedAtUtc)
+                        : query.OrderByDescending(h => h.StartedAtUtc),
+                    HistorySortBy.FinishedAt => filter.SortOrder == SortOrder.Ascending
+                        ? query.OrderBy(h => h.FinishedAtUtc)
+                        : query.OrderByDescending(h => h.FinishedAtUtc),
+                    HistorySortBy.ExtractedCount => filter.SortOrder == SortOrder.Ascending
+                        ? query.OrderBy(h => h.ExtractedCount)
+                        : query.OrderByDescending(h => h.ExtractedCount),
+                    HistorySortBy.SuccessCount => filter.SortOrder == SortOrder.Ascending
+                        ? query.OrderBy(h => h.SuccessCount)
+                        : query.OrderByDescending(h => h.SuccessCount),
+                    HistorySortBy.FailedCount => filter.SortOrder == SortOrder.Ascending
+                        ? query.OrderBy(h => h.FailedCount)
+                        : query.OrderByDescending(h => h.FailedCount),
+                    _ => query.OrderByDescending(h => h.StartedAtUtc) // Default sorting
+                };
+
+                // Apply pagination
+                if (filter.Offset.HasValue)
+                {
+                    query = query.Skip(filter.Offset.Value);
+                }
+
+                if (filter.Limit.HasValue)
+                {
+                    query = query.Take(filter.Limit.Value);
+                }
+
+                var histories = await query.ToListAsync(ct);
+
+                return (histories, totalCount);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new DatabaseException("Failed to retrieve execution history", ex);
+            }
+            
         }
 
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
