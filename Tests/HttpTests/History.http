@@ -1,0 +1,271 @@
+@api_host = http://localhost:5239
+@history_endpoint = {{api_host}}/api/history
+
+### ========================================
+### HISTORY API TESTS - GET EXECUTION HISTORY
+### ========================================
+
+### Test 1: Basic query - first page
+# Retrieves the first 20 records, sorted by start time (descending)
+GET {{history_endpoint}}?sortOrder=Descending&sortBy=StartedAt&offset=0&limit=20
+Accept: application/json
+
+### Test 2: Second page
+# Retrieves records 21-40
+GET {{history_endpoint}}?sortOrder=Descending&sortBy=StartedAt&offset=20&limit=20
+Accept: application/json
+
+### Test 3: Small page size
+# Retrieves only 5 records per page
+GET {{history_endpoint}}?sortOrder=Descending&sortBy=StartedAt&offset=0&limit=5
+Accept: application/json
+
+### Test 4: Large page size (maximum allowed)
+# Retrieves 100 records (maximum limit)
+GET {{history_endpoint}}?sortOrder=Descending&sortBy=StartedAt&offset=0&limit=100
+Accept: application/json
+
+### Test 5: Sort by StartedAt ascending (oldest first)
+# Shows execution history from oldest to newest
+GET {{history_endpoint}}?sortOrder=Ascending&sortBy=StartedAt&offset=0&limit=20
+Accept: application/json
+
+### Test 6: Sort by FinishedAt descending
+# Sorted by when jobs finished (most recent first)
+GET {{history_endpoint}}?sortOrder=Descending&sortBy=FinishedAt&offset=0&limit=20
+Accept: application/json
+
+### Test 7: Sort by FinishedAt ascending
+# Sorted by when jobs finished (oldest first)
+GET {{history_endpoint}}?sortOrder=Ascending&sortBy=FinishedAt&offset=0&limit=20
+Accept: application/json
+
+### Test 8: Sort by JobKey ascending
+# Alphabetically sorted by job name (A-Z)
+GET {{history_endpoint}}?sortOrder=Ascending&sortBy=JobKey&offset=0&limit=20
+Accept: application/json
+
+### Test 9: Sort by JobKey descending
+# Alphabetically sorted by job name (Z-A)
+GET {{history_endpoint}}?sortOrder=Descending&sortBy=JobKey&offset=0&limit=20
+Accept: application/json
+
+### Test 10: Sort by ExtractedCount descending
+# Shows jobs with most items extracted first
+GET {{history_endpoint}}?sortOrder=Descending&sortBy=ExtractedCount&offset=0&limit=20
+Accept: application/json
+
+### Test 11: Sort by SuccessCount descending
+# Shows jobs with most successes first
+GET {{history_endpoint}}?sortOrder=Descending&sortBy=SuccessCount&offset=0&limit=20
+Accept: application/json
+
+### Test 12: Sort by FailedCount descending
+# Shows jobs with most failures first (useful for troubleshooting)
+GET {{history_endpoint}}?sortOrder=Descending&sortBy=FailedCount&offset=0&limit=20
+Accept: application/json
+
+### Test 13: Pagination - page 3
+# Skip first 40 records, get next 20
+GET {{history_endpoint}}?sortOrder=Descending&sortBy=StartedAt&offset=40&limit=20
+Accept: application/json
+
+### Test 14: Pagination - page 5 with small page size
+# Skip 40 records (5 pages * 10), get next 10
+GET {{history_endpoint}}?sortOrder=Descending&sortBy=StartedAt&offset=40&limit=10
+Accept: application/json
+
+### ========================================
+### VALIDATION ERROR TESTS
+### ========================================
+
+### Test 15: Invalid sort order (should return 400)
+GET {{history_endpoint}}?sortOrder=InvalidOrder&sortBy=StartedAt&offset=0&limit=20
+Accept: application/json
+
+### Test 16: Invalid sort field (should return 400)
+GET {{history_endpoint}}?sortOrder=Descending&sortBy=InvalidField&offset=0&limit=20
+Accept: application/json
+
+### Test 17: Negative offset (should return 400)
+GET {{history_endpoint}}?sortOrder=Descending&sortBy=StartedAt&offset=-1&limit=20
+Accept: application/json
+
+### Test 18: Zero limit (should return 400)
+GET {{history_endpoint}}?sortOrder=Descending&sortBy=StartedAt&offset=0&limit=0
+Accept: application/json
+
+### Test 19: Limit exceeds maximum (should return 400)
+GET {{history_endpoint}}?sortOrder=Descending&sortBy=StartedAt&offset=0&limit=101
+Accept: application/json
+
+### Test 20: Missing required parameters (should return 400)
+GET {{history_endpoint}}
+Accept: application/json
+
+### Test 21: Invalid data types
+GET {{history_endpoint}}?sortOrder=Descending&sortBy=StartedAt&offset=abc&limit=xyz
+Accept: application/json
+
+### ========================================
+### EDGE CASES
+### ========================================
+
+### Test 22: Very large offset (beyond available records)
+# Should return empty items array but valid total count
+GET {{history_endpoint}}?sortOrder=Descending&sortBy=StartedAt&offset=999999&limit=20
+Accept: application/json
+
+### Test 23: Minimum valid values
+# Offset=0, Limit=1 (single record)
+GET {{history_endpoint}}?sortOrder=Ascending&sortBy=StartedAt&offset=0&limit=1
+Accept: application/json
+
+### Test 24: Sort by duration comparison - finish time
+# First by finish time
+GET {{history_endpoint}}?sortOrder=Descending&sortBy=FinishedAt&offset=0&limit=10
+Accept: application/json
+
+### Test 25: Sort by duration comparison - start time
+# Then by start time for comparison
+GET {{history_endpoint}}?sortOrder=Descending&sortBy=StartedAt&offset=0&limit=10
+Accept: application/json
+@api_host = http://localhost:5239
+@scheduler_endpoint = {{api_host}}/api/scheduler
+
+### ========================================
+### SCHEDULER API TESTS
+### ========================================
+
+### Test 1: Update CronExpression only
+# Updates the cron expression for a job to run every 5 minutes
+PATCH {{scheduler_endpoint}}/update
+Content-Type: application/json
+
+{
+  "jobKey": "UpdateProviders",
+  "cronExpression": "0 0/5 * * * ?"
+}
+
+### Test 2: Disable a scheduled job
+# Disables the job without changing its schedule
+PATCH {{scheduler_endpoint}}/update
+Content-Type: application/json
+
+{
+  "jobKey": "UpdateProviders",
+  "enabled": false
+}
+
+### Test 3: Enable a scheduled job
+# Re-enables a previously disabled job
+PATCH {{scheduler_endpoint}}/update
+Content-Type: application/json
+
+{
+  "jobKey": "UpdateProviders",
+  "enabled": true
+}
+
+### Test 4: Schedule one-time execution
+# Triggers a single execution at a specific time
+PATCH {{scheduler_endpoint}}/update
+Content-Type: application/json
+
+{
+  "jobKey": "UpdateProviders",
+  "nextExecutionUtc": "2025-10-06T22:00:00Z"
+}
+
+### Test 5: Update CronExpression and Enabled together
+# Updates schedule to run at 10:15 AM daily and disables it
+PATCH {{scheduler_endpoint}}/update
+Content-Type: application/json
+
+{
+  "jobKey": "UpdateMaterials",
+  "cronExpression": "0 15 10 * * ?",
+  "enabled": false
+}
+
+### Test 6: Complete update - all fields
+# Updates all available fields for maximum control
+PATCH {{scheduler_endpoint}}/update
+Content-Type: application/json
+
+{
+  "jobKey": "UpdateWarehouses",
+  "cronExpression": "0 0 8 ? * MON-FRI",
+  "enabled": true,
+  "nextExecutionUtc": "2025-10-07T08:00:00Z"
+}
+
+### Test 7: Daily at 2 AM
+# Standard daily job at 2 AM
+PATCH {{scheduler_endpoint}}/update
+Content-Type: application/json
+
+{
+  "jobKey": "UpdateStockPhotoValuations",
+  "cronExpression": "0 0 2 * * ?",
+  "enabled": true
+}
+
+### Test 8: Every hour
+# Runs every hour on the hour
+PATCH {{scheduler_endpoint}}/update
+Content-Type: application/json
+
+{
+  "jobKey": "UpdateMerchandiseEntry",
+  "cronExpression": "0 0 * * * ?",
+  "enabled": true
+}
+
+### ========================================
+### VALIDATION ERROR TESTS
+### ========================================
+
+### Test 9: Missing required JobKey (should return 400)
+PATCH {{scheduler_endpoint}}/update
+Content-Type: application/json
+
+{
+  "cronExpression": "0 0 2 * * ?",
+  "enabled": true
+}
+
+### Test 10: Invalid cron expression (should return 400)
+PATCH {{scheduler_endpoint}}/update
+Content-Type: application/json
+
+{
+  "jobKey": "UpdateProviders",
+  "cronExpression": "invalid cron expression"
+}
+
+### Test 11: Non-existent job key (should return 404)
+PATCH {{scheduler_endpoint}}/update
+Content-Type: application/json
+
+{
+  "jobKey": "NonExistentJob",
+  "enabled": true
+}
+
+### Test 12: Empty body (should return 400)
+PATCH {{scheduler_endpoint}}/update
+Content-Type: application/json
+
+{}
+
+### Test 13: Past date for next execution
+# Note: System behavior may vary - test if it accepts past dates
+PATCH {{scheduler_endpoint}}/update
+Content-Type: application/json
+
+{
+  "jobKey": "UpdateProviders",
+  "nextExecutionUtc": "2020-01-01T00:00:00Z"
+}
+
