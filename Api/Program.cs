@@ -1,5 +1,6 @@
 using Application.DependencyInjections;
 using Infrastructure.DependencyInjections;
+using Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,9 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+// Register exception handling middleware first
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 

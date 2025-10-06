@@ -10,10 +10,14 @@ namespace Infrastructure.DependencyInjections
         public static IServiceCollection AddHttpClientsInfrastructure(this IServiceCollection services)
         {
             services.AddHttpClient<IA3ApiClient, A3ApiClient>()
-                .AddPolicyHandler(HttpPolicies.GetHttpRetryPolicy());
+                .AddPolicyHandler(HttpPolicies.GetHttpRetryPolicy())
+                .AddPolicyHandler(HttpPolicies.GetHttpCircuitBreakerPolicy())
+                .AddPolicyHandler(HttpPolicies.GetTimeoutPolicy(30));
 
             services.AddHttpClient<IGimApiClient, GimApiClient>()
-                .AddPolicyHandler(HttpPolicies.GetHttpRetryPolicy());
+                .AddPolicyHandler(HttpPolicies.GetHttpRetryPolicy())
+                .AddPolicyHandler(HttpPolicies.GetHttpCircuitBreakerPolicy())
+                .AddPolicyHandler(HttpPolicies.GetTimeoutPolicy(30));
 
             return services;
         }

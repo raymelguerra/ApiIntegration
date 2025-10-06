@@ -21,7 +21,11 @@ namespace Infrastructure.DependencyInjections
                     storeOptions.UseProperties = true;
                     storeOptions.PerformSchemaValidation = true;
                 });
+                
+                // Register job listener for exception handling
+                options.AddJobListener<QuartzJobExceptionListener>();
             });
+            
             services.AddQuartzHostedService(options => {
                 options.WaitForJobsToComplete = true;
             });
