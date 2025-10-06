@@ -52,5 +52,9 @@ namespace Infrastructure.Quartz
                 logger.LogInformation("Scheduled one-time trigger for existing job {JobKey} to run at {RunAt}", jobKey, runAt);
             }
         }
+        public bool ValidateCronExpression(string cronExpression, CancellationToken ct = default)
+        {
+            return CronExpression.IsValidExpression(cronExpression);
+        }
     }
 }

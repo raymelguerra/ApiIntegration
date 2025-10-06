@@ -1,5 +1,7 @@
 using Application.Abstractions;
 using Application.Commands;
+using Application.Exceptions;
+using Domain.Extensions;
 using Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -11,17 +13,28 @@ namespace Application.Handlers
         {
             logger.LogInformation("Handling UpdateSyncSchedulerCommand for job: {JobKey}", request.Request.JobKey);
 
-            ArgumentNullException.ThrowIfNull(request);
-            
-            var existingSchedule = await repo.GetScheduleAsync(request.Request.JobKey, cancellationToken);
-            if (existingSchedule == null)
+            if (request.Request == null)
             {
-                throw new KeyNotFoundException($"Schedule with JobKey {request.Request.JobKey} not found.");
+                throw new ValidationException("Request", "Request cannot be null");
             }
+            
+            // validate if JobKey is valid
+            if (!request.Request.JobKey.IsValidJobKey())
+            {
+                throw new ValidationException("JobKey", "Invalid JobKey: " + request.Request.JobKey);
+            }
+
+            var existingSchedule = await repo.GetScheduleAsync(request.Request.JobKey, cancellationToken);
             
             if (request.Request.CronExpression is not null and {} cron &&
                 cron != existingSchedule.CronExpression)
             {
+                // validate if cron expression is valid
+                if(!schedulerService.ValidateCronExpression(cron, cancellationToken)) 
+                {
+                    throw new ValidationException("CronExpression", $"Invalid cron expression: {cron}");
+                }
+                
                 existingSchedule.CronExpression = request.Request.CronExpression;
             }
             
@@ -40,8 +53,10 @@ namespace Application.Handlers
                 
                 await schedulerService.ScheduleOneTimeJobAsync(request.Request.JobKey, nextExecutionUtc, cancellationToken);
             }
-
-
+            
+            await repo.UpsertScheduleAsync(existingSchedule, cancellationToken);
+            await repo.SaveChangesAsync(cancellationToken);
+            
             logger.LogInformation("Completed UpdateSyncSchedulerCommand for job: {JobKey}", request.Request.JobKey);
             return Unit.Value;
         }

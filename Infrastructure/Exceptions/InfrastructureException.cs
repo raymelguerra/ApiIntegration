@@ -18,6 +18,11 @@ public abstract class InfrastructureException : Exception
 
 public class DatabaseException : InfrastructureException
 {
+    public DatabaseException(string message) 
+        : base($"Database operation failed: {message}", "DATABASE_ERROR")
+    {
+    }
+
     public DatabaseException(string message, Exception innerException) 
         : base($"Database operation failed: {message}", "DATABASE_ERROR", innerException)
     {
@@ -97,4 +102,3 @@ public class TimeoutException : InfrastructureException
     {
     }
 }
-

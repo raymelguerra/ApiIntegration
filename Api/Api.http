@@ -15,7 +15,7 @@ Content-Type: application/json
 
 {
   "JobKey": "UpdateProviders",
-  "Enabled": true
+  "Enabled": false
 }
 
 ### PATCH: actualizar solo NextExecutionUtc (disparar ejecución única)
