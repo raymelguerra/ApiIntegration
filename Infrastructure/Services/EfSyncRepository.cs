@@ -146,7 +146,7 @@ namespace Infrastructure.Services
                     HistorySortBy.FailedCount => filter.SortOrder == SortOrder.Ascending
                         ? query.OrderBy(h => h.FailedCount)
                         : query.OrderByDescending(h => h.FailedCount),
-                    _ => query.OrderByDescending(h => h.StartedAtUtc)// Default sorting
+                    _ => query.OrderByDescending(h => h.StartedAtUtc) // Default sorting
                 };
 
                 // Apply pagination
