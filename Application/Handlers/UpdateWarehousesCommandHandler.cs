@@ -1,0 +1,19 @@
+using Application.Abstractions;
+using Application.Commands;
+using Microsoft.Extensions.Logging;
+
+namespace Application.Handlers
+{
+    public class UpdateWarehousesCommandHandler(ILogger<UpdateWarehousesCommandHandler> logger) : IRequestHandler<UpdateWarehousesCommand, Unit>
+    {
+        public async Task<Unit> Handle(UpdateWarehousesCommand request, CancellationToken cancellationToken)
+        {
+            logger.LogInformation("Handling UpdateWarehousesCommand for job: {JobKey}", request.JobKey);
+            
+            await Task.Delay(1000, cancellationToken);
+        
+            logger.LogInformation("Completed UpdateWarehousesCommand for job: {JobKey}", request.JobKey);
+            return Unit.Value;
+        }
+    }
+}

@@ -1,0 +1,43 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=syncuser
+      - POSTGRES_PASSWORD=syncpass
+      - POSTGRES_DB=syncdb
+    ports:
+      - 5434:5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - apiintegration-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U syncuser -d syncdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  api:
+    build:
+      context: .
+      dockerfile: Api/Dockerfile
+    container_name: apiintegration-api
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - apiintegration-network
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+
+networks:
+  apiintegration-network:
+    driver: bridge
