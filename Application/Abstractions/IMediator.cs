@@ -1,8 +1,8 @@
 namespace Application.Abstractions
 {
-    public interface IRequest<TResponse>;
+    public interface IRequest<out TResponse>;
 
-    public interface IRequestHandler<TRequest, TResponse> where TRequest : IRequest<TResponse>
+    public interface IRequestHandler<in TRequest, TResponse> where TRequest : IRequest<TResponse>
     {
         Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken = default);
     }

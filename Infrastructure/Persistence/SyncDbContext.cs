@@ -42,7 +42,7 @@ namespace Infrastructure.Persistence
                 .HasForeignKey(fi => fi.ExecutionHistoryId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            mb.AddQuartz(builder => builder.UsePostgreSql("qrtz_"));
+            mb.AddQuartz(builder => builder.UsePostgreSql());
         }
     }
 }

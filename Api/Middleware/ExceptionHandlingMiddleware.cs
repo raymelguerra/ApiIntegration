@@ -6,31 +6,21 @@ using AppExceptions = Application.Exceptions;
 
 namespace Api.Middleware;
 
-public class ExceptionHandlingMiddleware
+public class ExceptionHandlingMiddleware(
+    RequestDelegate next,
+    ILogger<ExceptionHandlingMiddleware> logger,
+    IHostEnvironment environment)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<ExceptionHandlingMiddleware> _logger;
-    private readonly IHostEnvironment _environment;
-
-    public ExceptionHandlingMiddleware(
-        RequestDelegate next,
-        ILogger<ExceptionHandlingMiddleware> logger,
-        IHostEnvironment environment)
-    {
-        _next = next;
-        _logger = logger;
-        _environment = environment;
-    }
 
     public async Task InvokeAsync(HttpContext context)
     {
         try
         {
-            await _next(context);
+            await next(context);
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "An unhandled exception occurred: {Message}", exception.Message);
+            logger.LogError(exception, "An unhandled exception occurred: {Message}", exception.Message);
             await HandleExceptionAsync(context, exception);
         }
     }
@@ -132,8 +122,6 @@ public class ExceptionHandlingMiddleware
         {
             "EntityNotFoundException" => (int)HttpStatusCode.NotFound,
             "EntityAlreadyExistsException" => (int)HttpStatusCode.Conflict,
-            "BusinessRuleValidationException" => (int)HttpStatusCode.BadRequest,
-            "InvalidEntityStateException" => (int)HttpStatusCode.BadRequest,
             _ => (int)HttpStatusCode.BadRequest
         };
 
@@ -150,8 +138,6 @@ public class ExceptionHandlingMiddleware
             "CircuitBreakerOpenException" => (int)HttpStatusCode.ServiceUnavailable,
             "TimeoutException" => (int)HttpStatusCode.RequestTimeout,
             "ExternalApiException" => GetExternalApiStatusCode(exception),
-            "DatabaseException" => (int)HttpStatusCode.InternalServerError,
-            "QuartzJobException" => (int)HttpStatusCode.InternalServerError,
             _ => (int)HttpStatusCode.InternalServerError
         };
 
@@ -196,7 +182,7 @@ public class ExceptionHandlingMiddleware
         problemDetails.Extensions["timestamp"] = DateTime.UtcNow;
 
         // Include stack trace and inner exception details only in development
-        if (_environment.IsDevelopment())
+        if (environment.IsDevelopment())
         {
             problemDetails.Extensions["stackTrace"] = exception.StackTrace;
             

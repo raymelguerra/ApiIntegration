@@ -10,7 +10,7 @@ public static class ResiliencePolicies
     public static IAsyncPolicy GetDatabaseRetryPolicy(ILogger logger)
     {
         return Policy
-            .Handle<Exception>(ex => IsDatabaseTransientError(ex))
+            .Handle<Exception>(IsDatabaseTransientError)
             .WaitAndRetryAsync(
                 retryCount: 3,
                 sleepDurationProvider: retryAttempt => 
@@ -28,7 +28,7 @@ public static class ResiliencePolicies
     public static IAsyncPolicy GetDatabaseCircuitBreakerPolicy(ILogger logger)
     {
         return Policy
-            .Handle<Exception>(ex => IsDatabaseTransientError(ex))
+            .Handle<Exception>(IsDatabaseTransientError)
             .CircuitBreakerAsync(
                 exceptionsAllowedBeforeBreaking: 5,
                 durationOfBreak: TimeSpan.FromMinutes(1),
@@ -53,10 +53,7 @@ public static class ResiliencePolicies
     {
         return Policy
             .TimeoutAsync(timeout, TimeoutStrategy.Pessimistic,
-                onTimeoutAsync: (_, _, _) =>
-                {
-                    return Task.CompletedTask;
-                });
+                onTimeoutAsync: (_, _, _) => Task.CompletedTask);
     }
 
     public static IAsyncPolicy GetExternalApiRetryPolicy(ILogger logger, string apiName)
@@ -113,7 +110,7 @@ public static class ResiliencePolicies
     public static IAsyncPolicy GetQuartzJobRetryPolicy(ILogger logger, string jobName)
     {
         return Policy
-            .Handle<Exception>(ex => IsRetryableJobError(ex))
+            .Handle<Exception>(IsRetryableJobError)
             .WaitAndRetryAsync(
                 retryCount: 2,
                 sleepDurationProvider: retryAttempt => 

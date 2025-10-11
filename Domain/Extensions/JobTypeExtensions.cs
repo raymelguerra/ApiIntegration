@@ -15,8 +15,7 @@ namespace Domain.Extensions
         public static bool TryParseJobKey(this string? jobKey, out JobType result)
         {
             result = default;
-            if (string.IsNullOrWhiteSpace(jobKey)) return false;
-            return Enum.TryParse<JobType>(jobKey.Trim(), ignoreCase: true, out result);
+            return !string.IsNullOrWhiteSpace(jobKey) && Enum.TryParse<JobType>(jobKey.Trim(), ignoreCase: true, out result);
         }
         
     }

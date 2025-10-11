@@ -12,12 +12,12 @@ namespace Infrastructure.DependencyInjections
             services.AddHttpClient<IA3ApiClient, A3ApiClient>()
                 .AddPolicyHandler(HttpPolicies.GetHttpRetryPolicy())
                 .AddPolicyHandler(HttpPolicies.GetHttpCircuitBreakerPolicy())
-                .AddPolicyHandler(HttpPolicies.GetTimeoutPolicy(30));
+                .AddPolicyHandler(HttpPolicies.GetTimeoutPolicy());
 
             services.AddHttpClient<IGimApiClient, GimApiClient>()
                 .AddPolicyHandler(HttpPolicies.GetHttpRetryPolicy())
                 .AddPolicyHandler(HttpPolicies.GetHttpCircuitBreakerPolicy())
-                .AddPolicyHandler(HttpPolicies.GetTimeoutPolicy(30));
+                .AddPolicyHandler(HttpPolicies.GetTimeoutPolicy());
 
             return services;
         }

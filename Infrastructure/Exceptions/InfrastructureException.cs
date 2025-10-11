@@ -71,34 +71,10 @@ public class QuartzJobException : InfrastructureException
     }
 }
 
-public class CachingException : InfrastructureException
-{
-    public CachingException(string message, Exception innerException) 
-        : base($"Caching operation failed: {message}", "CACHING_ERROR", innerException)
-    {
-    }
-}
+public class CachingException(string message, Exception innerException) : InfrastructureException($"Caching operation failed: {message}", "CACHING_ERROR", innerException);
 
-public class MessageBrokerException : InfrastructureException
-{
-    public MessageBrokerException(string message, Exception innerException) 
-        : base($"Message broker operation failed: {message}", "MESSAGE_BROKER_ERROR", innerException)
-    {
-    }
-}
+public class MessageBrokerException(string message, Exception innerException) : InfrastructureException($"Message broker operation failed: {message}", "MESSAGE_BROKER_ERROR", innerException);
 
-public class CircuitBreakerOpenException : InfrastructureException
-{
-    public CircuitBreakerOpenException(string serviceName) 
-        : base($"Circuit breaker is open for service '{serviceName}'. Service is temporarily unavailable.", "CIRCUIT_BREAKER_OPEN")
-    {
-    }
-}
+public class CircuitBreakerOpenException(string serviceName) : InfrastructureException($"Circuit breaker is open for service '{serviceName}'. Service is temporarily unavailable.", "CIRCUIT_BREAKER_OPEN");
 
-public class TimeoutException : InfrastructureException
-{
-    public TimeoutException(string operation, TimeSpan timeout) 
-        : base($"Operation '{operation}' timed out after {timeout.TotalSeconds} seconds.", "OPERATION_TIMEOUT")
-    {
-    }
-}
+public class TimeoutException(string operation, TimeSpan timeout) : InfrastructureException($"Operation '{operation}' timed out after {timeout.TotalSeconds} seconds.", "OPERATION_TIMEOUT");

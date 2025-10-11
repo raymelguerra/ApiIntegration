@@ -10,18 +10,24 @@ using HealthChecks.UI.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new NullReferenceException();
-builder.Services.AddInfrastructure(connectionString);
+builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 
 // Configure Health Checks
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");
+}
+
 builder.Services.AddHealthChecks()
     .AddCheck<ApiHealthCheck>("api", tags: new[] { "api", "ready" })
     .AddCheck<DatabaseHealthCheck>("database", tags: new[] { "database", "ready" })
+    .AddCheck<QuartzHealthCheck>("quartz", tags: new[] { "scheduler", "ready" })
     .AddNpgSql(
         connectionString, 
         name: "postgres_connection",
-        tags: new[] { "database", "infrastructure" },
+        tags: ["database", "infrastructure"],
         timeout: TimeSpan.FromSeconds(5));
 
 // Configure controllers to use string enums

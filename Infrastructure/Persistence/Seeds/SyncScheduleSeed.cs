@@ -1,10 +1,9 @@
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Quartz;
 
 namespace Infrastructure.Persistence.Seeds
 {
-    public class SyncScheduleSeed
+    public abstract class SyncScheduleSeed
     {
         public static void Seed(EntityTypeBuilder<SyncSchedule> builder)
         {

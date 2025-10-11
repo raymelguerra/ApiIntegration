@@ -1,7 +1,5 @@
 using Domain.Interfaces;
 using Infrastructure.Jobs;
-using Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

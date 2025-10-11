@@ -16,7 +16,7 @@ namespace Infrastructure.Policies
                 .WaitAndRetryAsync(
                     retryCount: 3,
                     sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                    onRetry: (outcome, timeSpan, retryCount, context) =>
+                    onRetry: (outcome, timeSpan, retryCount, _) =>
                     {
                         logger?.LogWarning(
                             outcome.Exception,

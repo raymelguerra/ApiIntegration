@@ -31,54 +31,30 @@ public class ValidationException : ApplicationException
     {
         Errors = new Dictionary<string, string[]>
         {
-            { field, new[] { error } }
+            { field, [error] }
         };
     }
 }
 
-public class UnauthorizedException : ApplicationException
-{
-    public UnauthorizedException(string message = "Unauthorized access.") 
-        : base(message, "UNAUTHORIZED")
-    {
-    }
-}
+public abstract class UnauthorizedException(string message = "Unauthorized access.") : ApplicationException(message, "UNAUTHORIZED");
 
-public class ForbiddenException : ApplicationException
-{
-    public ForbiddenException(string message = "Access forbidden.") 
-        : base(message, "FORBIDDEN")
-    {
-    }
-}
+public abstract class ForbiddenException(string message = "Access forbidden.") : ApplicationException(message, "FORBIDDEN");
 
-public class CommandHandlerException : ApplicationException
-{
-    public CommandHandlerException(string commandName, Exception innerException) 
-        : base($"Error executing command '{commandName}'.", "COMMAND_HANDLER_ERROR", innerException)
-    {
-    }
-}
+public abstract class CommandHandlerException(string commandName, Exception innerException) : ApplicationException($"Error executing command '{commandName}'.", "COMMAND_HANDLER_ERROR", innerException);
 
-public class QueryHandlerException : ApplicationException
-{
-    public QueryHandlerException(string queryName, Exception innerException) 
-        : base($"Error executing query '{queryName}'.", "QUERY_HANDLER_ERROR", innerException)
-    {
-    }
-}
+public abstract class QueryHandlerException(string queryName, Exception innerException) : ApplicationException($"Error executing query '{queryName}'.", "QUERY_HANDLER_ERROR", innerException);
 
-public class SyncJobException : ApplicationException
+public abstract class SyncJobException : ApplicationException
 {
     public string JobType { get; }
 
-    public SyncJobException(string jobType, string message) 
+    protected SyncJobException(string jobType, string message) 
         : base($"Sync job '{jobType}' failed: {message}", "SYNC_JOB_ERROR")
     {
         JobType = jobType;
     }
 
-    public SyncJobException(string jobType, string message, Exception innerException) 
+    protected SyncJobException(string jobType, string message, Exception innerException) 
         : base($"Sync job '{jobType}' failed: {message}", "SYNC_JOB_ERROR", innerException)
     {
         JobType = jobType;

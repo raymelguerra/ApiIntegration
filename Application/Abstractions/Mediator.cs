@@ -1,4 +1,3 @@
-using Application.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Application.Abstractions

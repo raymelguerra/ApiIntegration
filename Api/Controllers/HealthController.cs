@@ -11,16 +11,8 @@ namespace Api.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]
-    public class HealthController : ControllerBase
+    public class HealthController(HealthCheckService healthCheckService, ILogger<HealthController> logger) : ControllerBase
     {
-        private readonly HealthCheckService _healthCheckService;
-        private readonly ILogger<HealthController> _logger;
-
-        public HealthController(HealthCheckService healthCheckService, ILogger<HealthController> logger)
-        {
-            _healthCheckService = healthCheckService;
-            _logger = logger;
-        }
 
         /// <summary>
         /// Get overall health status
@@ -38,9 +30,9 @@ namespace Api.Controllers
         [ProducesResponseType(typeof(HealthReport), StatusCodes.Status503ServiceUnavailable)]
         public async Task<IActionResult> GetHealth()
         {
-            var report = await _healthCheckService.CheckHealthAsync();
+            var report = await healthCheckService.CheckHealthAsync();
             
-            _logger.LogInformation(
+            logger.LogInformation(
                 "Health check requested. Status: {Status}, Duration: {Duration}ms",
                 report.Status,
                 report.TotalDuration.TotalMilliseconds);
@@ -91,7 +83,7 @@ namespace Api.Controllers
         [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
         public async Task<IActionResult> GetReadiness()
         {
-            var report = await _healthCheckService.CheckHealthAsync(check => check.Tags.Contains("ready"));
+            var report = await healthCheckService.CheckHealthAsync(check => check.Tags.Contains("ready"));
             
             return report.Status == HealthStatus.Healthy
                 ? Ok(new { status = "Ready", message = "API is ready to accept requests" })
@@ -137,7 +129,7 @@ namespace Api.Controllers
         [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
         public async Task<IActionResult> GetDatabaseHealth()
         {
-            var report = await _healthCheckService.CheckHealthAsync(check => check.Tags.Contains("database"));
+            var report = await healthCheckService.CheckHealthAsync(check => check.Tags.Contains("database"));
             
             var dbChecks = report.Entries.Select(e => new
             {

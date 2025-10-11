@@ -11,7 +11,7 @@ namespace Application.Handlers
         {
             logger.LogInformation("Handling UpdateMaterialsCommand for job: {JobKey}", request.JobKey);
             
-            await Task.Delay(1000, cancellationToken); // Simular trabajo
+            await Task.Delay(1000, cancellationToken);
         
             logger.LogInformation("Completed UpdateMaterialsCommand for job: {JobKey}", request.JobKey);
             return Unit.Value;
