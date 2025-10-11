@@ -1,4 +1,5 @@
 using Infrastructure.Persistence;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,35 +15,38 @@ namespace Infrastructure.DependencyInjections
             {
                 var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
                 var logger = loggerFactory.CreateLogger("DatabaseConnection");
-                
+
                 options.UseNpgsql(connectionString, npgsqlOptions =>
-                {
-                    npgsqlOptions.MigrationsAssembly(typeof(SyncDbContext).Assembly.FullName);
-                    
-                    // Configure database connection resilience policy
-                    // Retries 3 times with exponential backoff if connection fails
-                    npgsqlOptions.EnableRetryOnFailure(
+                    {
+                        npgsqlOptions.MigrationsAssembly(typeof(SyncDbContext).Assembly.FullName);
+
+                        // Configure database connection resilience policy
+                        // Retries 3 times with exponential backoff if connection fails
+                        npgsqlOptions.EnableRetryOnFailure(
                         maxRetryCount: 3,
                         maxRetryDelay: TimeSpan.FromSeconds(10),
                         errorCodesToAdd: null
-                    );
-                    
-                    // Configure command timeout
-                    npgsqlOptions.CommandTimeout(30);
-                })
-                .UseLoggerFactory(loggerFactory)
-                .EnableSensitiveDataLogging(false)
-                .ConfigureWarnings(warnings =>
-                {
-                    // Suppress detailed connection error logs to avoid stacktraces
-                    warnings.Log(
+                        );
+
+                        // Configure command timeout
+                        npgsqlOptions.CommandTimeout(30);
+                    })
+                    .UseLoggerFactory(loggerFactory)
+                    .EnableSensitiveDataLogging(false)
+                    .ConfigureWarnings(warnings =>
+                    {
+                        // Suppress the pending model changes warning caused by HasData with static dates
+                        warnings.Ignore(RelationalEventId.PendingModelChangesWarning);
+
+                        // Suppress detailed connection error logs to avoid stacktraces
+                        warnings.Log(
                         (RelationalEventId.ConnectionOpening, LogLevel.Debug),
                         (RelationalEventId.ConnectionOpened, LogLevel.Debug),
                         (RelationalEventId.ConnectionClosing, LogLevel.Debug),
                         (RelationalEventId.ConnectionClosed, LogLevel.Debug)
-                    );
-                })
-                .LogTo(
+                        );
+                    })
+                    .LogTo(
                     message =>
                     {
                         // Filter only retry strategy messages without including stacktrace
@@ -63,7 +67,7 @@ namespace Infrastructure.DependencyInjections
                         }
                     },
                     LogLevel.Information
-                );
+                    );
             });
 
             return services;

@@ -1,12 +1,17 @@
 using System.Reflection;
 using System.Text.Json.Serialization;
-using Application.DependencyInjections;
-using Infrastructure.DependencyInjections;
-using Api.Middleware;
+
 using Api.HealthChecks;
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Api.Middleware;
+
+using Application.DependencyInjections;
+
 using HealthChecks.UI.Client;
+
+using Infrastructure.DependencyInjections;
+
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,14 +26,26 @@ if (string.IsNullOrWhiteSpace(connectionString))
 }
 
 builder.Services.AddHealthChecks()
-    .AddCheck<ApiHealthCheck>("api", tags: new[] { "api", "ready" })
-    .AddCheck<DatabaseHealthCheck>("database", tags: new[] { "database", "ready" })
-    .AddCheck<QuartzHealthCheck>("quartz", tags: new[] { "scheduler", "ready" })
+    .AddCheck<ApiHealthCheck>("api", tags: new[]
+    {
+        "api",
+        "ready"
+    })
+    .AddCheck<DatabaseHealthCheck>("database", tags: new[]
+    {
+        "database",
+        "ready"
+    })
+    .AddCheck<QuartzHealthCheck>("quartz", tags: new[]
+    {
+        "scheduler",
+        "ready"
+    })
     .AddNpgSql(
-        connectionString, 
-        name: "postgres_connection",
-        tags: ["database", "infrastructure"],
-        timeout: TimeSpan.FromSeconds(5));
+    connectionString,
+    name: "postgres_connection",
+    tags: ["database", "infrastructure"],
+    timeout: TimeSpan.FromSeconds(5));
 
 // Configure controllers to use string enums
 builder.Services.AddControllers()
@@ -48,8 +65,7 @@ builder.Services.AddSwaggerGen(options =>
         Description = "API for managing synchronization between A3 and GIM and execution history",
         Contact = new OpenApiContact
         {
-            Name = "Development Team",
-            Email = "raymel.ramos@businessinsights.es",
+            Name = "Development Team", Email = "raymel.ramos@businessinsights.es"
         }
     });
 
@@ -63,15 +79,18 @@ builder.Services.AddSwaggerGen(options =>
 
     // Enable annotations for better descriptions
     options.EnableAnnotations();
-    
+
     // Add custom schema IDs to avoid conflicts
     options.CustomSchemaIds(type => type.FullName?.Replace("+", "."));
-    
+
     // Configure enums to display as strings in Swagger
     options.UseInlineDefinitionsForEnums();
 });
 
 var app = builder.Build();
+
+// Apply database migrations automatically (delegated to Infrastructure layer)
+app.Services.ApplyDatabaseMigrations();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -81,7 +100,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "API Integration v1");
-        options.RoutePrefix = string.Empty; // Set Swagger UI at app's root
+        options.RoutePrefix = string.Empty;// Set Swagger UI at app's root
         options.DocumentTitle = "API Integration - Swagger UI";
         options.DisplayRequestDuration();
     });
@@ -99,19 +118,17 @@ app.MapControllers();
 // Map Health Check endpoints
 app.MapHealthChecks("/health", new HealthCheckOptions
 {
-    Predicate = _ => true,
-    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+    Predicate = _ => true, ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
 
 app.MapHealthChecks("/health/ready", new HealthCheckOptions
 {
-    Predicate = check => check.Tags.Contains("ready"),
-    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+    Predicate = check => check.Tags.Contains("ready"), ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
 
 app.MapHealthChecks("/health/live", new HealthCheckOptions
 {
-    Predicate = _ => false, // Just check if the API is running
+    Predicate = _ => false,// Just check if the API is running
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
 
