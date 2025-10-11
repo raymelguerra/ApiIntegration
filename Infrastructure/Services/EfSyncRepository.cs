@@ -10,7 +10,6 @@ namespace Infrastructure.Services
 {
     public class EfSyncRepository(SyncDbContext ctx, ILogger<EfSyncRepository> logger) : ISyncRepository
     {
-
         public async Task<IEnumerable<SyncSchedule>> GetScheduleAsync(CancellationToken ct = default)
         {
             logger.LogInformation("Getting schedules");
@@ -112,10 +111,11 @@ namespace Infrastructure.Services
                 throw new DatabaseException("Failed to add failed items", ex);
             }
         }
+        
         public async Task<(IEnumerable<ExecutionHistory> Histories, int Count)> GetExecutionHistoryAsync(Paginator<HistorySortBy> filter, CancellationToken ct = default)
         {
             logger.LogInformation("Getting execution history with filter: {@Filter}", filter);
-            // In the out tuple, the list is the items, the int is the total count, in filter param we have offset, limit, sortBy, sortOrder
+            
             try
             {
                 var query = ctx.ExecutionHistories.AsQueryable();
@@ -163,7 +163,6 @@ namespace Infrastructure.Services
             {
                 throw new DatabaseException("Failed to retrieve execution history", ex);
             }
-            
         }
 
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

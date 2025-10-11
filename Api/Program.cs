@@ -3,13 +3,26 @@ using System.Text.Json.Serialization;
 using Application.DependencyInjections;
 using Infrastructure.DependencyInjections;
 using Api.Middleware;
+using Api.HealthChecks;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using HealthChecks.UI.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new NullReferenceException();
 builder.Services.AddInfrastructure(connectionString);
 builder.Services.AddApplication();
+
+// Configure Health Checks
+builder.Services.AddHealthChecks()
+    .AddCheck<ApiHealthCheck>("api", tags: new[] { "api", "ready" })
+    .AddCheck<DatabaseHealthCheck>("database", tags: new[] { "database", "ready" })
+    .AddNpgSql(
+        connectionString, 
+        name: "postgres_connection",
+        tags: new[] { "database", "infrastructure" },
+        timeout: TimeSpan.FromSeconds(5));
 
 // Configure controllers to use string enums
 builder.Services.AddControllers()
@@ -76,5 +89,24 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Map Health Check endpoints
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    Predicate = _ => true,
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
+
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready"),
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
+
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = _ => false, // Just check if the API is running
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
 
 app.Run();
